@@ -25,8 +25,9 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 
-# create class to handle rendering the templates
 class Handler(webapp2.RequestHandler):
+    """ create class to handle rendering the templates
+    """
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
 
@@ -38,25 +39,28 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
-# create Post database
 class Post(db.Model):
+    """ create Post database
+    """
     title = db.StringProperty(required=True)
     post = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
 
 
-# handles the front page, displaying 5 newest posts
 class MainPage(Handler):
+    """ handles the front page, displaying 5 newest posts
+    """
     def render_front(self, title="", post="", error=""):
-        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 5")
+        posts = get_posts(5, 0)
         self.render("blog.html", title=title, post=post, error=error, posts=posts)
 
     def get(self):
         self.render_front()
 
 
-# handles new post functions
 class NewPost(Handler):
+    """ handles new post functions
+    """
     def render_newpost(self, title="", post="", error_title="", error_post=""):
         self.render('newpost.html', title=title, post=post, error_title=error_title, error_post=error_post)
 
@@ -82,8 +86,9 @@ class NewPost(Handler):
             self.redirect("/blog/" + str(a.key().id()))
 
 
-# handles requests to view a single post
 class ViewPostHandler(Handler):
+    """ handles requests to view a single post
+    """
     def get(self, id):
         post = Post.get_by_id(int(id))
 
@@ -91,6 +96,14 @@ class ViewPostHandler(Handler):
             self.render("singlepost.html", post=post)
         else:
             self.render("blog.html", error="That post ID doesn't exist")
+
+
+def get_posts(limit, offset):
+    """ filters the database query by count and offset
+    """
+    posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT " + str(limit) + 
+                        "OFFSET " + str(offset))
+    return posts
 
 
 app = webapp2.WSGIApplication([
