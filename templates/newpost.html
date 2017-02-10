@@ -2,10 +2,6 @@
 
 {% block content %}
 
-<!DOCTYPE html>
-
-<h1>Build-a-Blog</h1>
-
 <form method="post">
     <label>
         <div>title</div>
@@ -21,14 +17,5 @@
 
     <input type="submit">
 </form>
-
-<hr>
-
-{% for post in posts %}
-    <div class="post">
-        <div class="post-title">{{ post.title }}</div>
-        <pre class="post-body">{{ post.post }}</pre>
-    </div>
-{% endfor %}
 
 {% endblock %}

@@ -59,7 +59,21 @@
         </style>
     </head>
     <body>
+        <div class="error">{{ error }}</div>
+
+        <a href='/blog'>
+            <h1>Build-a-Blog</h1></a>
+
+        <a href='/blog/newpost'>
+            <button type="button">New Post</button></a>
+
+        <a href='/blog'>
+            <button type="button">Home</button></a>
+
+        <hr>
+        
         {% block content %}
         {% endblock %}
+
     </body>
 </html>

@@ -43,13 +43,20 @@ class Post(db.Model):
 
 class MainPage(Handler):
     def render_front(self, title="", post="", error=""):
-        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC")
+        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 5")
 
-        self.render("frontpage.html", title=title, post=post, error=error, posts=posts)
+        self.render("blog.html", title=title, post=post, error=error, posts=posts)
 
     def get(self):
         self.render_front()
-    
+
+class NewPost(Handler):
+    def render_newpost(self, title="", post="", error=""):
+        self.render('newpost.html', title=title, post=post, error=error)
+
+    def get(self):
+        self.render_newpost()
+
     def post(self):
         title = self.request.get("title")
         post = self.request.get("post")
@@ -57,13 +64,24 @@ class MainPage(Handler):
         if title and post:
             a = Post(title=title, post=post)
             a.put()
-            
-            self.redirect("/")
-
+            self.redirect("/blog")
         else:
             error = "we need both a title and some content!"
             self.render_front(title=title, post=post, error=error)
+    
+class ViewPostHandler(Handler):
+    def get(self, id):
+        post = Post.get_by_id(int(id))
+
+        if post:
+            self.render_viewpost(post)
+        else:
+            self.render("blog.html", error="That post ID doesn't exist")
+            
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
+    ('/blog', MainPage),
+    ('/blog/newpost', NewPost),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
