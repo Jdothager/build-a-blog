@@ -57,8 +57,8 @@ class MainPage(Handler):
 
 # handles new post functions
 class NewPost(Handler):
-    def render_newpost(self, title="", post="", error=""):
-        self.render('newpost.html', title=title, post=post, error=error)
+    def render_newpost(self, title="", post="", error_title="", error_post=""):
+        self.render('newpost.html', title=title, post=post, error_title=error_title, error_post=error_post)
 
     def get(self):
         self.render_newpost()
@@ -68,9 +68,14 @@ class NewPost(Handler):
         post = self.request.get("post")
 
         # error handling
-        if not title or not post or (title.strip() == "") or (post.strip() == ""):
-            error = "We need both a title and some content!"
-            self.render_newpost(title=title, post=post, error=error)
+        error_title = ""
+        error_post = ""
+        if not title or (title.strip() == ""):
+            error_title = "Don't forget to add a title!"
+        if not post or (post.strip() == ""):
+            error_post = "Your post is empty!"
+        if error_title or error_post:
+            self.render_newpost(title=title, post=post, error_title=error_title, error_post=error_post)
         else:
             a = Post(title=title, post=post)
             a.put()
