@@ -48,11 +48,39 @@ class Post(db.Model):
 
 
 class MainPage(Handler):
-    """ handles the front page, displaying 5 newest posts
+    """ handles the front page, displaying 5 posts
     """
     def render_front(self, title="", post="", error=""):
-        posts = get_posts(5, 0)
-        self.render("blog.html", title=title, post=post, error=error, posts=posts)
+        # set the page number
+        page_str = self.request.get("page")
+        if page_str:
+            page = int(page_str)
+        else:
+            page = 1
+
+        # set the offset
+        offset = 0
+        for each in range(page - 1):
+            offset += 5
+
+        # get posts and post count
+        posts = get_posts(offset=offset)
+        count = posts.count(offset=offset+5)
+
+        # set previous_page and next_page variables
+        if page > 1:
+            previous_page = page - 1
+        else:
+            previous_page = False
+
+        if count:
+            next_page = page + 1
+        else:
+            next_page = False
+
+        # render the page
+        self.render("blog.html", title=title, post=post, error=error, posts=posts, 
+                    previous_page=previous_page, next_page=next_page)
 
     def get(self):
         self.render_front()
@@ -98,7 +126,7 @@ class ViewPostHandler(Handler):
             self.render("blog.html", error="That post ID doesn't exist")
 
 
-def get_posts(limit, offset):
+def get_posts(limit="5", offset="0"):
     """ filters the database query by count and offset
     """
     posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT " + str(limit) + 

@@ -9,4 +9,17 @@
     </div>
 {% endfor %}
 
+<br>
+<br>
+<div>
+    {% if previous_page %}
+        <a href="/blog?page={{ previous_page }}">&lt; Previous</a>
+    {% endif %}
+
+
+    {% if next_page %}
+        <a href="/blog?page={{ next_page }}">Next &gt;</a>
+    {% endif %}
+</div>
+
 {% endblock %}
