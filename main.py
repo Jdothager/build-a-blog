@@ -61,13 +61,16 @@ class NewPost(Handler):
         title = self.request.get("title")
         post = self.request.get("post")
 
-        if title and post:
+        # error handling
+        if not title or not post or (title.strip() == "") or (post.strip() == ""):
+            error = "We need both a title and some content!"
+            self.render_newpost(title=title, post=post, error=error)
+        else:
             a = Post(title=title, post=post)
             a.put()
             self.redirect("/blog")
-        else:
-            error = "we need both a title and some content!"
-            self.render_front(title=title, post=post, error=error)
+
+            
     
 class ViewPostHandler(Handler):
     def get(self, id):
